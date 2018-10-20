@@ -11,6 +11,7 @@ import (
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/afex/hystrix-go/hystrix/metric_collector"
 )
 
 type eventStreamTestServer struct {
@@ -68,8 +69,8 @@ func failingCommand(t *testing.T, name string, duration time.Duration) {
 
 // grabFirstFromStream reads on the http request until we see the first
 // full result printed
-func grabFirstCommandFromStream(t *testing.T, url string) streamCmdMetric {
-	var event streamCmdMetric
+func grabFirstCommandFromStream(t *testing.T, url string) metricCollector.StreamCmdMetric {
+	var event metricCollector.StreamCmdMetric
 
 	metrics, done := streamMetrics(t, url)
 	for m := range metrics {
@@ -89,8 +90,8 @@ func grabFirstCommandFromStream(t *testing.T, url string) streamCmdMetric {
 	return event
 }
 
-func grabFirstThreadPoolFromStream(t *testing.T, url string) streamThreadPoolMetric {
-	var event streamThreadPoolMetric
+func grabFirstThreadPoolFromStream(t *testing.T, url string) metricCollector.StreamThreadPoolMetric {
+	var event metricCollector.StreamThreadPoolMetric
 
 	metrics, done := streamMetrics(t, url)
 	for m := range metrics {

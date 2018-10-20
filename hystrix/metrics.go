@@ -68,11 +68,23 @@ func (m *metricExchange) Monitor() {
 
 func (m *metricExchange) IncrementMetrics(wg *sync.WaitGroup, collector metricCollector.MetricCollector, update *commandExecution, totalDuration time.Duration) {
 	// granular metrics
+	var cmdMetric *metricCollector.StreamCmdMetric
+	var poolMetric *metricCollector.StreamThreadPoolMetric
+
+	circuitBreakersMutex.RLock()
+	for _, cb := range circuitBreakers {
+		cmdMetric = BuildStreamCmdMetric(cb)
+		poolMetric = BuildStreamThreadPoolMetric(cb.executorPool)
+	}
+	circuitBreakersMutex.RUnlock()
+
 	r := metricCollector.MetricResult{
 		Attempts:         1,
 		TotalDuration:    totalDuration,
 		RunDuration:      update.RunDuration,
 		ConcurrencyInUse: update.ConcurrencyInUse,
+		CMDMetric: cmdMetric,
+		ThreadPoolMetric: poolMetric,
 	}
 
 	switch update.Types[0] {
